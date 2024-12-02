@@ -1,77 +1,60 @@
 package hust.soict.dsai.aims.cart;
-import hust.soict.dsai.aims.disc.DigitalVideoDisc;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+
+import hust.soict.dsai.aims.media.Media;
+import hust.soict.dsai.aims.media.MediaComparatorByCostTitle;
+import hust.soict.dsai.aims.media.MediaComparatorByTitleCost;
 
 public class Cart {
-
-    // Max Number of order
     public static final int MAX_NUMBERS_ORDERED = 20;
+    private ArrayList<Media> itemsOrdered = new ArrayList<Media>();
 
-    // array store orders
-    private DigitalVideoDisc itemsOrdered[] =
-            new DigitalVideoDisc[MAX_NUMBERS_ORDERED];
 
-    // qtyOrdered: how many DigitalVideoDiscs are in the cart
-    private int qtyOrdered = 0;
+    public ArrayList<Media>  getOrderedList(){
+        return itemsOrdered;
+    }
 
-    // add an item to the list
-    public void addDigitalVideoDisc(DigitalVideoDisc disc){
-        // check the current quantity to assure that the cart is not already full
-        if(qtyOrdered < 20) {
-            itemsOrdered[qtyOrdered] = disc;
-            qtyOrdered++;
-            System.out.println("The disc has been added");
+    //	Total Cost of Card
+    public float totalCost() {
+        float total = 0;
+        for(Media m: itemsOrdered) {
+            total += m.getCost();
+        }
+        return total;
+    }
+    // Add Media to Cart
+    public void addMedia(Media m) {
+        int size = itemsOrdered.size();
+        if(size != 20) {
+            itemsOrdered.add(m);
+            System.out.println("The media has been added");
         }
         else {
             System.out.println("The cart is almost full");
         }
     }
-    // add a list of DVDs to the current cart
-    public void addDigitalVideoDisc(DigitalVideoDisc[] dvdList) {
-        for (DigitalVideoDisc disc : dvdList) {
-            addDigitalVideoDisc(disc); // Call the individual item addition method
-        }
-    }
-    // add two items to the list
-    public void addDigitalVideoDisc(DigitalVideoDisc dvd1, DigitalVideoDisc dvd2) {
-        addDigitalVideoDisc(dvd1); // Call the individual item addition method for dvd1
-        addDigitalVideoDisc(dvd2); // Call the individual item addition method for dvd2
-    }
-
-
-
-    // remove the item passed by argument from the list
-    public void removeDigitalVideoDisc(DigitalVideoDisc disc) {
-
-        for(int index = 0; index < qtyOrdered; index++) {
-            if(itemsOrdered[index].getTitle() == disc.getTitle()) {
-
-                for(int j = index; j < qtyOrdered; j++) {
-                    itemsOrdered[j] = itemsOrdered[j + 1];
-                }
-                qtyOrdered--;
+    // Remove Media to Cart
+    public void removeMedia(Media m) {
+        Iterator<Media> iterator = itemsOrdered.iterator();
+        while (iterator.hasNext()) {
+            Media media = iterator.next();
+            if (media.getTitle().equals(m.getTitle())) {
+                iterator.remove();
                 System.out.println("The disc has been removed");
-                break;
             }
         }
+        System.out.println("The media does not exist in the cart.");
     }
 
-    // method which loops through the values of the array and sums the costs of the individual DigitalVideoDiscs
-    public float totalCost() {
-        float total = 0;
-        for(int index = 0; index < qtyOrdered; index++) {
-            total += itemsOrdered[index].getCost();
-        }
-        return total;
-    }
-    public void listCart(){
-        for(int i = 0 ; i < qtyOrdered ; i++) System.out.println("id: "+ itemsOrdered[i].getId() +
-                " " + itemsOrdered[i].getTitle());
-    }
+
+
     // Search by ID
     public boolean search(int id) {
-        int n = qtyOrdered;
-        for(int i = 0; i < n; i++) {
-            if(itemsOrdered[i].getId() == id) {
+        for(Media m: itemsOrdered) {
+            if(m.getId() == id) {
                 return true;
             }
         }
@@ -79,28 +62,60 @@ public class Cart {
     }
     // Search by Title
     public boolean search(String title) {
-        int n = qtyOrdered;
-        for(int i = 0; i < n; i++) {
-            if(itemsOrdered[i].getTitle() == title) {
+        for(Media m: itemsOrdered) {
+            if(m.getTitle() == title) {
                 return true;
             }
         }
         return false;
     }
-
+    // Print Cart
     public void printCart() {
         System.out.println("***********************CART***********************");
         System.out.println("Ordered Items:");
-
-        for (int i = 0; i < qtyOrdered; i++) {
-            DigitalVideoDisc dvd = itemsOrdered[i];
-            System.out.printf("%d. DVD - %s - %s - %s - %d minutes: %.2f $\n", i + 1, dvd.getTitle(),
-                    dvd.getCategory(), dvd.getDirector(), dvd.getLength(), dvd.getCost());
+        int i = 0;
+        for (Media media : itemsOrdered) {
+            System.out.printf("#%d: %s. %.2f $\n", ++i, media.getTitle(), media.getCost());
         }
 
         float totalCost = totalCost();
-        System.out.printf("Total cost: %.2f $\n", totalCost);
+        System.out.println("-------------------------------------");
+        System.out.printf("===> Total cost: %.2f $\n", totalCost);
         System.out.println("***************************************************");
     }
+
+
+    public void printLength() {
+        System.out.println(itemsOrdered.size());
+    }
+
+    public void sortByTitle() {
+        Collections.sort(itemsOrdered, new Comparator<Media>() {
+            @Override
+            public int compare(Media media1, Media media2) {
+                return media1.getTitle().compareTo(media2.getTitle());
+            }
+        });
+        System.out.println("Cart sorted by title.");
+        printCart();
+    }
+    public void sortByCost() {
+        Collections.sort(itemsOrdered, new Comparator<Media>() {
+            @Override
+            public int compare(Media media1, Media media2) {
+                return Float.compare(media1.getCost(), media2.getCost());
+            }
+        });
+        System.out.println("Cart sorted by cost.");
+        printCart();
+    }
+
+    public Media searchMedia(String title) {
+        for(Media m: itemsOrdered) {
+            if(m.getTitle().equals(title)) {
+                return m;
+            }
+        }
+        return null;
+    }
 }
-// Something change

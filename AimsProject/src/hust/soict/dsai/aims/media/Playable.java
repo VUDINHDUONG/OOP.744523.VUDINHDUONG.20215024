@@ -1,5 +1,5 @@
-package hust.soict.hedspi.aims.media;
+package hust.soict.dsai.aims.media;
 
 public interface Playable {
-	public void play();
+    void play();
 }
