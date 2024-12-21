@@ -1,12 +1,17 @@
 package hust.soict.dsai.aims;
+
+import hust.soict.dsai.aims.cart.Cart;
+import hust.soict.dsai.aims.exception.PlayerException;
+import hust.soict.dsai.aims.media.*;
+import hust.soict.dsai.aims.store.Store;
+import javafx.collections.ObservableList;
+
+import javax.naming.LimitExceededException;
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-
-import hust.soict.dsai.aims.cart.Cart;
-import hust.soict.dsai.aims.media.*;
-import hust.soict.dsai.aims.store.Store;
 
 public class Aims {
 
@@ -100,13 +105,14 @@ public class Aims {
         }
     }
 
-    public static void addToCart(Media m){
+    public static void addToCart(Media m) throws LimitExceededException {
         System.out.println("\n>>>>>>>>>>>>>=======<<<<<<<<<<<<");
         order.addMedia(m);
         System.out.println(">>>>>>>>>>>>>=======<<<<<<<<<<<<\n");
     }
 
-    public static void playMedia(Media m){
+    public static void playMedia(Media m) throws PlayerException {
+        try {
         if (m instanceof DigitalVideoDisc) {
             System.out.println("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
             ((DigitalVideoDisc) m).play();
@@ -120,35 +126,43 @@ public class Aims {
             System.out.println("===>>>This type of media does not have play mode<<<===");
             System.out.println("======================================================");
         }
+
+        } catch (PlayerException e) {
+            handleException(e);
+        }
     }
 
-    public static boolean solveOptionOfMediaDetailsSelected(Media m){
-        switch (readOption()){
+    public static boolean solveOptionOfMediaDetailsSelected(Media m) throws PlayerException, LimitExceededException {
+        try {
+            switch (readOption()) {
 
-            // 1. Add to cart
-            case 1:
-                addToCart(m);
-                break;
+                // 1. Add to cart
+                case 1:
+                    addToCart(m);
+                    break;
 
-            // 2. Play
-            case 2:
-                playMedia(m);
-                break;
+                // 2. Play
+                case 2:
+                    playMedia(m);
+                    break;
 
-            // 0. Back
-            case 0:
-                return true;
+                // 0. Back
+                case 0:
+                    return true;
 
-            default:
-                System.out.println("========================================");
-                System.out.println("===>>>This option is not available<<<===");
-                System.out.println("========================================");
-                return false;
-        }
+                default:
+                    System.out.println("========================================");
+                    System.out.println("===>>>This option is not available<<<===");
+                    System.out.println("========================================");
+                    return false;
+            }
+            }catch (PlayerException | LimitExceededException e) {
+                handleException(e);
+            }
         return false;
     }
 
-    public static void showMediaDetails(){
+    public static void showMediaDetails() throws PlayerException, LimitExceededException {
 
         sc.nextLine();
         System.out.println(">>>>>Enter the title of the media: ");
@@ -173,7 +187,7 @@ public class Aims {
 
     }
 
-    public static void addAMediaToCart(){
+    public static void addAMediaToCart() throws LimitExceededException {
         sc.nextLine();
         System.out.println(">>>>>Enter the title of the media you want to add to the cart: ");
         System.out.print(">>>>>");
@@ -190,21 +204,21 @@ public class Aims {
         }
         int count = 0;
         if(tmp instanceof DigitalVideoDisc){
-            for(Media m : order.getOrderedList())
+            for(Media m : order.getItemsOrdered())
                 if(m instanceof  DigitalVideoDisc) count++;
 
             System.out.println(">>>>>The number of DVDs in the current cart: " + count +"<<<<<\n");
         }
     }
 
-    public static void playAMedia(){
+    public static void playAMedia() throws PlayerException {
         sc.nextLine();
         System.out.println(">>>>>Enter the title of the media you want to play: ");
         System.out.print(">>>>>");
         Media tmp = store.searchMedia(sc.nextLine());
         playMedia(tmp);
     }
-    public static boolean solveOptionOfStoreMenuSelected(){
+    public static boolean solveOptionOfStoreMenuSelected() throws PlayerException, LimitExceededException {
         switch (readOption()){
 
             // 1. See a media’s details
@@ -240,7 +254,7 @@ public class Aims {
         return false;
     }
 
-    public static void viewStore(){
+    public static void viewStore() throws PlayerException, LimitExceededException {
 
         boolean backToMenuMain = false;
 
@@ -462,7 +476,7 @@ public class Aims {
         System.out.print(">>>>>");
         String title = sc.nextLine();
 
-        ArrayList<Media> itemsOrdered = order.getOrderedList();
+        ObservableList<Media> itemsOrdered = order.getItemsOrdered();
 
         System.out.println("***********************CART***********************");
         System.out.println("Ordered Items by Title:");
@@ -511,7 +525,7 @@ public class Aims {
     }
 
     public static void placeOrder(){
-        if(order.getOrderedList().isEmpty()){
+        if(order.getItemsOrdered().isEmpty()){
             System.out.println("!!!! Your order is EMPTY !!!!");
         }
         else{
@@ -519,7 +533,7 @@ public class Aims {
         }
     }
 
-    public static boolean solveOptionOfCartMenuSelected(){
+    public static boolean solveOptionOfCartMenuSelected() throws PlayerException {
         switch (readOption()){
 
             // 1. Filter medias in cart
@@ -560,7 +574,7 @@ public class Aims {
         return false;
     }
 
-    public static void seeCurrentCart(){
+    public static void seeCurrentCart() throws PlayerException {
 
         order.printCart();
         boolean back= false;
@@ -575,7 +589,7 @@ public class Aims {
     //===================================================================================//
 
     //===================================Menu Main==========================================//
-    public static void solveOptionSelected(){
+    public static void solveOptionSelected() throws PlayerException, LimitExceededException {
         switch (readOption()){
 
             // 1. View store
@@ -583,7 +597,7 @@ public class Aims {
                 viewStore();
                 break;
 
-           // 2. Update store
+            // 2. Update store
             case 2:
                 updateStore();
                 break;
@@ -633,7 +647,7 @@ public class Aims {
 
         // DVD
         DigitalVideoDisc initDVD = new DigitalVideoDisc("Inception", "DVD",
-                "Christopher Nolan", 150, 35.88f);
+                "Christopher Nolan", 0, 35.88f);
 
         // CD
         ArrayList<Track> tracks = new ArrayList<>();
@@ -651,12 +665,25 @@ public class Aims {
 
     //===================================================================================//
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws PlayerException, LimitExceededException {
 
-        initData();
-        while(true){
-            showMenu();
-            solveOptionSelected();
-        }
+            initData();
+            while (true) {
+                showMenu();
+                solveOptionSelected();
+            }
+    }
+
+    public static void handleException(Exception e) {
+        String errorMessage = "An exception occurred: " + e.getMessage();
+        System.out.println(errorMessage);
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Test Frame");
+//            frame.setSize(300, 200);
+//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setVisible(true);
+            JOptionPane.showMessageDialog(frame, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+        });
+
     }
 }

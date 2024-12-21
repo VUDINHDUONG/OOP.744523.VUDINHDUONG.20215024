@@ -1,12 +1,14 @@
 package hust.soict.dsai.aims.store;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 import hust.soict.dsai.aims.media.Media;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import java.util.Iterator;
+
 
 public class Store {
     public static final int MAX_NUMBERS_DVD = 100;
-    private ArrayList<Media> itemsInStore = new ArrayList<Media>();
+    private ObservableList<Media> itemsInStore = FXCollections.observableArrayList();
     // 	Add Media to Store
     public void addMedia(Media m) {
         int size = itemsInStore.size();
@@ -69,4 +71,7 @@ public class Store {
     }
 
 
+    public ObservableList<Media> getItemsInStore() {
+        return itemsInStore;
+    }
 }
