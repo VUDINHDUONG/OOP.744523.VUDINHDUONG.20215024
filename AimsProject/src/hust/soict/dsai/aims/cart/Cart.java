@@ -1,19 +1,20 @@
 package hust.soict.dsai.aims.cart;
-import java.util.ArrayList;
+
+import hust.soict.dsai.aims.media.Media;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import javax.naming.LimitExceededException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import hust.soict.dsai.aims.media.Media;
-import hust.soict.dsai.aims.media.MediaComparatorByCostTitle;
-import hust.soict.dsai.aims.media.MediaComparatorByTitleCost;
-
 public class Cart {
     public static final int MAX_NUMBERS_ORDERED = 20;
-    private ArrayList<Media> itemsOrdered = new ArrayList<Media>();
+    private ObservableList<Media> itemsOrdered = FXCollections.observableArrayList();
 
-
-    public ArrayList<Media>  getOrderedList(){
+    public ObservableList<Media> getItemsOrdered() {
+        // TODO Auto-generated method stub
         return itemsOrdered;
     }
 
@@ -25,17 +26,19 @@ public class Cart {
         }
         return total;
     }
+
     // Add Media to Cart
-    public void addMedia(Media m) {
+    public void addMedia(Media m) throws LimitExceededException {
         int size = itemsOrdered.size();
-        if(size != 20) {
+        if(size < MAX_NUMBERS_ORDERED) {
             itemsOrdered.add(m);
             System.out.println("The media has been added");
         }
         else {
-            System.out.println("The cart is almost full");
+            throw new LimitExceededException("ERROR: The number of media has reached its limit");
         }
     }
+
     // Remove Media to Cart
     public void removeMedia(Media m) {
         Iterator<Media> iterator = itemsOrdered.iterator();
@@ -117,5 +120,9 @@ public class Cart {
             }
         }
         return null;
+    }
+
+    public void removeMediaAll() {
+        itemsOrdered.removeAll(itemsOrdered);
     }
 }
